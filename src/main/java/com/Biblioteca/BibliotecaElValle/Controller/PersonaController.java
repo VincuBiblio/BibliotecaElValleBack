@@ -27,7 +27,7 @@ public class PersonaController {
     }
 
     @PostMapping("/registroUsuario")
-    public ResponseEntity<PersonaUsuarioResponse> registroUsuario(@RequestBody PersonaUsuarioRequest personaRequest){
+    public ResponseEntity<PersonaUsuarioResponse> registroUsuario(@RequestBody PersonaUsuarioRequest personaRequest) throws Exception {
         PersonaUsuarioResponse personaResponse= personaService.registrarUsuario(personaRequest);
 
         if (personaResponse == null){
@@ -38,7 +38,7 @@ public class PersonaController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UsuarioRequest request) {
+    public ResponseEntity<?> login(@RequestBody UsuarioRequest request) throws Exception {
         PersonaUsuarioResponse response = personaService.login(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

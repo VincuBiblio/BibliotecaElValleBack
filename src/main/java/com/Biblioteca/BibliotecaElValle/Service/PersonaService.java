@@ -9,16 +9,23 @@ import com.Biblioteca.BibliotecaElValle.Models.Persona.Usuario;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.ClienteRepository;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.PersonaRepository;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.UsuarioRepository;
+import com.Biblioteca.BibliotecaElValle.Security.jwt.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Slf4j
 @Service
-public class PersonaService {
+public class PersonaService implements UserDetailsService {
 
     @Autowired
     private PersonaRepository personaRepository;
@@ -28,6 +35,12 @@ public class PersonaService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Transactional
     public PersonaClienteResponse registrarCliente(PersonaClienteRequest personaClienteRequest){
@@ -83,7 +96,7 @@ public class PersonaService {
 
 
     @Transactional
-    public PersonaUsuarioResponse registrarUsuario(PersonaUsuarioRequest personaUsuarioRequest){
+    public PersonaUsuarioResponse registrarUsuario(PersonaUsuarioRequest personaUsuarioRequest) throws Exception {
         Persona newPersona = new Persona();
         newPersona.setCedula(personaUsuarioRequest.getCedula());
         newPersona.setApellidos(personaUsuarioRequest.getApellidos());
@@ -100,7 +113,7 @@ public class PersonaService {
                 Optional<Usuario> user = usuarioRepository.findByPersona(persona);
                 return new PersonaUsuarioResponse(persona.getId(),persona.getCedula(),
                         persona.getApellidos(), persona.getNombres(),persona.getFechaNacimiento(),
-                        persona.getEdad(),persona.getGenero(), persona.getTelefono(), persona.getEmail(),user.get().getClave());
+                        persona.getEdad(),persona.getGenero(), persona.getTelefono(), persona.getEmail(),user.get().getClave(), generateTokenSignUp(personaUsuarioRequest));
             }else {
                 log.error("No se puedo guardar el usuario con cédula: {} e email: {}", personaUsuarioRequest.getCedula(), personaUsuarioRequest.getEmail());
                 throw new BadRequestException("No se pudo guardar el usuario");
@@ -143,7 +156,7 @@ public class PersonaService {
 
     //LOGIN
 
-    public PersonaUsuarioResponse login (UsuarioRequest usuarioRequest){
+    public PersonaUsuarioResponse login (UsuarioRequest usuarioRequest) throws Exception {
         Optional<Persona> optional = personaRepository.findByEmail(usuarioRequest.getEmail());
         if(optional.isPresent()){
             Optional<Usuario> usuarioOptional= usuarioRepository.findByPersona(optional.get());
@@ -151,7 +164,8 @@ public class PersonaService {
                 if(usuarioRequest.getClave().equals(usuarioOptional.get().getClave())){
                     return new PersonaUsuarioResponse(optional.get().getId(),optional.get().getCedula(),
                             optional.get().getApellidos(), optional.get().getNombres(),optional.get().getFechaNacimiento(),
-                            optional.get().getEdad(),optional.get().getGenero(), optional.get().getTelefono(), optional.get().getEmail(),usuarioOptional.get().getClave());
+                            optional.get().getEdad(),optional.get().getGenero(), optional.get().getTelefono(), optional.get().getEmail(),usuarioOptional.get().getClave(),
+                            generateTokenLogin(usuarioRequest));
                 }else{
                     throw new BadRequestException("Contraseña incorrecta para email: " + usuarioRequest.getEmail());
                 }
@@ -165,7 +179,35 @@ public class PersonaService {
         }
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<Persona> usuario = personaRepository.findByEmail(email);
+        return new org.springframework.security.core.userdetails.User(usuario.get().getEmail(), usuario.get().getEmail(), new ArrayList<>());
+    }
 
 
+    public String generateTokenLogin(UsuarioRequest userRequest) throws Exception {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(userRequest.getEmail(), userRequest.getEmail())
+            );
+        } catch (Exception ex) {
+            log.error("INVALID: error al generar token en login de usuario con email: {}", userRequest.getEmail());
+            throw new Exception("INAVALID");
+        }
+        return jwtUtil.generateToken(userRequest.getEmail());
+    }
+
+    public String generateTokenSignUp(PersonaUsuarioRequest registerRequest) throws Exception {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(registerRequest.getEmail(), registerRequest.getEmail())
+            );
+        } catch (Exception ex) {
+            log.error("INVALID: error al generar token en signup de usuario con email: {}", registerRequest.getEmail());
+            throw new BadRequestException("INAVALID");
+        }
+        return jwtUtil.generateToken(registerRequest.getEmail());
+    }
 
 }
