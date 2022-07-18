@@ -17,18 +17,20 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ServicioCliente implements Serializable {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "fecha_uso")
     @Temporal(TemporalType.DATE)
     private Date fechaUso;
 
-    @Id
+
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "id_cliente",referencedColumnName = "id")
     private Cliente cliente;
 
-    @Id
+
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "id_servicio",referencedColumnName = "id")
     private Servicio servicio;
