@@ -1,0 +1,152 @@
+package com.Biblioteca.BibliotecaElValle.Service;
+
+
+import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaClienteRequest;
+import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaClienteResponse;
+import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaUsuarioRequest;
+import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaUsuarioResponse;
+import com.Biblioteca.BibliotecaElValle.Excepciones.BadRequestException;
+import com.Biblioteca.BibliotecaElValle.Models.Persona.Cliente;
+import com.Biblioteca.BibliotecaElValle.Models.Persona.Persona;
+import com.Biblioteca.BibliotecaElValle.Models.Persona.Usuario;
+import com.Biblioteca.BibliotecaElValle.Repository.Persona.ClienteRepository;
+import com.Biblioteca.BibliotecaElValle.Repository.Persona.PersonaRepository;
+import com.Biblioteca.BibliotecaElValle.Repository.Persona.UsuarioRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.Optional;
+
+@Slf4j
+@Service
+public class PersonaService {
+
+    @Autowired
+    private PersonaRepository personaRepository;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Transactional
+    public PersonaClienteResponse registrarCliente(PersonaClienteRequest personaClienteRequest){
+        Persona newPersona = new Persona();
+        newPersona.setCedula(personaClienteRequest.getCedula());
+        newPersona.setApellidos(personaClienteRequest.getApellidos());
+        newPersona.setNombres(personaClienteRequest.getNombres());
+        newPersona.setFechaNacimiento(personaClienteRequest.getFechaNacimiento());
+        newPersona.setEdad(personaClienteRequest.getEdad());
+        newPersona.setGenero(personaClienteRequest.getGenero());
+        newPersona.setTelefono(personaClienteRequest.getTelefono());
+        newPersona.setEmail(personaClienteRequest.getEmail());
+        if(!getPersona(personaClienteRequest.getCedula())){
+            Persona persona = personaRepository.save(newPersona);
+            if(persona!=null){
+                guardarCliente(persona.getCedula(), personaClienteRequest.getEstadoCivil(), personaClienteRequest.getDiscapacidad());
+                Optional<Cliente> cliente = clienteRepository.findByPersona(persona);
+                return new PersonaClienteResponse(persona.getId(),persona.getCedula(),
+                         persona.getApellidos(), persona.getNombres(),persona.getFechaNacimiento(),
+                        persona.getEdad(),persona.getGenero(), persona.getTelefono(), persona.getEmail(), cliente.get().getEstadoCivil(), cliente.get().getDiscapacidad());
+            }else {
+                log.error("No se puedo guardar el cliente con cédula: {} e email: {}", personaClienteRequest.getCedula(), personaClienteRequest.getEmail());
+                throw new BadRequestException("No se pudo guardar el cliente");
+            }
+        }else {
+            log.error("La cédula ya está registrada: {}", personaClienteRequest.getCedula());
+            throw new BadRequestException("La cedula ingresada, ya esta registrada, si la cedula le pertenece contactenos a");
+        }
+    }
+    //Guardar Cliente
+    private boolean guardarCliente(String cedula,String estado, Boolean discapacidad){
+
+        Optional<Persona> optionalPersona = personaRepository.findByCedula(cedula);
+        if(optionalPersona.isPresent()){
+            Persona persona = optionalPersona.get();
+            Cliente newCliente = new Cliente();
+            newCliente.setEstadoCivil(estado);
+            newCliente.setDiscapacidad(discapacidad);
+            newCliente.setPersona(persona);
+            Cliente cliente = clienteRepository.save(newCliente);
+            if(cliente!=null){
+                return true;
+            }else{
+                throw new BadRequestException("Cliente no registrado");
+
+            }
+
+        }else{
+            throw new BadRequestException("La cedula ingresada, no está registrada");
+
+        }
+    }
+
+
+    @Transactional
+    public PersonaUsuarioResponse registrarUsuario(PersonaUsuarioRequest personaUsuarioRequest){
+        Persona newPersona = new Persona();
+        newPersona.setCedula(personaUsuarioRequest.getCedula());
+        newPersona.setApellidos(personaUsuarioRequest.getApellidos());
+        newPersona.setNombres(personaUsuarioRequest.getNombres());
+        newPersona.setFechaNacimiento(personaUsuarioRequest.getFechaNacimiento());
+        newPersona.setEdad(personaUsuarioRequest.getEdad());
+        newPersona.setGenero(personaUsuarioRequest.getGenero());
+        newPersona.setTelefono(personaUsuarioRequest.getTelefono());
+        newPersona.setEmail(personaUsuarioRequest.getEmail());
+        if(!getPersona(personaUsuarioRequest.getCedula())){
+            Persona persona = personaRepository.save(newPersona);
+            if(persona!=null){
+                guardarUsuario(persona.getCedula(),personaUsuarioRequest.getClave());
+                Optional<Usuario> user = usuarioRepository.findByPersona(persona);
+                return new PersonaUsuarioResponse(persona.getId(),persona.getCedula(),
+                        persona.getApellidos(), persona.getNombres(),persona.getFechaNacimiento(),
+                        persona.getEdad(),persona.getGenero(), persona.getTelefono(), persona.getEmail(),user.get().getClave());
+            }else {
+                log.error("No se puedo guardar el usuario con cédula: {} e email: {}", personaUsuarioRequest.getCedula(), personaUsuarioRequest.getEmail());
+                throw new BadRequestException("No se pudo guardar el usuario");
+            }
+        }else {
+            log.error("La cédula ya está registrada: {}", personaUsuarioRequest.getCedula());
+            throw new BadRequestException("La cedula ingresada, ya esta registrada, si la cedula le pertenece contactenos a");
+        }
+    }
+
+
+    //Guardar Cliente
+    private boolean guardarUsuario(String cedula,String clave){
+
+        Optional<Persona> optionalPersona = personaRepository.findByCedula(cedula);
+        if(optionalPersona.isPresent()){
+            Persona persona = optionalPersona.get();
+            Usuario newUsuario = new Usuario();
+            newUsuario.setClave(clave);
+
+            newUsuario.setPersona(persona);
+            Usuario user = usuarioRepository.save(newUsuario);
+            if(user!=null){
+                return true;
+            }else{
+                throw new BadRequestException("Usuario no registrado");
+
+            }
+
+        }else{
+            throw new BadRequestException("La cedula ingresada, no está registrada");
+
+        }
+    }
+
+    private boolean getPersona(String cedula) {
+        return personaRepository.existsByCedula(cedula);
+    }
+
+
+
+
+
+
+
+}
