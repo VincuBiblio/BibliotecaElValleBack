@@ -1,10 +1,7 @@
 package com.Biblioteca.BibliotecaElValle.Controller;
 
 
-import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaClienteRequest;
-import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaClienteResponse;
-import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaUsuarioRequest;
-import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaUsuarioResponse;
+import com.Biblioteca.BibliotecaElValle.Dao.Persona.*;
 import com.Biblioteca.BibliotecaElValle.Service.PersonaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,5 +34,12 @@ public class PersonaController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(personaResponse, HttpStatus.CREATED);
+    }
+
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody UsuarioRequest request) {
+        PersonaUsuarioResponse response = personaService.login(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

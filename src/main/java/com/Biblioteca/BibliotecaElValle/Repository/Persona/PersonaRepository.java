@@ -10,4 +10,6 @@ public interface PersonaRepository extends JpaRepository<Persona,Long> {
     Boolean existsByCedula (String cedula);
 
     Optional<Persona> findByCedula(String cedula);
+
+    Optional<Persona> findByEmail(String email);
 }

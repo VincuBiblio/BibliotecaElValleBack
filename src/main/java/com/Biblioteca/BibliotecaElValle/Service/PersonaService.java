@@ -1,10 +1,7 @@
 package com.Biblioteca.BibliotecaElValle.Service;
 
 
-import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaClienteRequest;
-import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaClienteResponse;
-import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaUsuarioRequest;
-import com.Biblioteca.BibliotecaElValle.Dao.Persona.PersonaUsuarioResponse;
+import com.Biblioteca.BibliotecaElValle.Dao.Persona.*;
 import com.Biblioteca.BibliotecaElValle.Excepciones.BadRequestException;
 import com.Biblioteca.BibliotecaElValle.Models.Persona.Cliente;
 import com.Biblioteca.BibliotecaElValle.Models.Persona.Persona;
@@ -144,7 +141,29 @@ public class PersonaService {
     }
 
 
+    //LOGIN
 
+    public PersonaUsuarioResponse login (UsuarioRequest usuarioRequest){
+        Optional<Persona> optional = personaRepository.findByEmail(usuarioRequest.getEmail());
+        if(optional.isPresent()){
+            Optional<Usuario> usuarioOptional= usuarioRepository.findByPersona(optional.get());
+            if(usuarioOptional.isPresent()){
+                if(usuarioRequest.getClave().equals(usuarioOptional.get().getClave())){
+                    return new PersonaUsuarioResponse(optional.get().getId(),optional.get().getCedula(),
+                            optional.get().getApellidos(), optional.get().getNombres(),optional.get().getFechaNacimiento(),
+                            optional.get().getEdad(),optional.get().getGenero(), optional.get().getTelefono(), optional.get().getEmail(),usuarioOptional.get().getClave());
+                }else{
+                    throw new BadRequestException("Contraseña incorrecta para email: " + usuarioRequest.getEmail());
+                }
+            }else{
+                log.info("EMAIL NO EXISTE");
+                throw new BadRequestException("Usuario no registrado como usuario");
+            }
+        }else{
+            log.info("EMAIL NO EXISTE");
+            throw new BadRequestException("Usuario no registrado");
+        }
+    }
 
 
 
