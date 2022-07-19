@@ -2,13 +2,22 @@ package com.Biblioteca.BibliotecaElValle.Service;
 
 
 import com.Biblioteca.BibliotecaElValle.Dao.Persona.*;
+import com.Biblioteca.BibliotecaElValle.Dao.Ubicacion.UbicacionReponse;
 import com.Biblioteca.BibliotecaElValle.Excepciones.BadRequestException;
 import com.Biblioteca.BibliotecaElValle.Models.Persona.Cliente;
 import com.Biblioteca.BibliotecaElValle.Models.Persona.Persona;
 import com.Biblioteca.BibliotecaElValle.Models.Persona.Usuario;
+import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Canton;
+import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Parroquia;
+import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Provincia;
+import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Ubicacion;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.ClienteRepository;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.PersonaRepository;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.UsuarioRepository;
+import com.Biblioteca.BibliotecaElValle.Repository.Ubicacion.CantonRepository;
+import com.Biblioteca.BibliotecaElValle.Repository.Ubicacion.ParroquiaRepository;
+import com.Biblioteca.BibliotecaElValle.Repository.Ubicacion.ProvinciaRepository;
+import com.Biblioteca.BibliotecaElValle.Repository.Ubicacion.UbicacionRepository;
 import com.Biblioteca.BibliotecaElValle.Security.jwt.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +46,18 @@ public class PersonaService implements UserDetailsService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
+    private CantonRepository cantonRepository;
+
+    @Autowired
+    private ParroquiaRepository parroquiaRepository;
+
+    @Autowired
+    private ProvinciaRepository provinciaRepository;
+
+    @Autowired
+    private UbicacionRepository ubicacionRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     @Autowired
@@ -44,31 +65,42 @@ public class PersonaService implements UserDetailsService {
 
     @Transactional
     public PersonaClienteResponse registrarCliente(PersonaClienteRequest personaClienteRequest){
-        Persona newPersona = new Persona();
-        newPersona.setCedula(personaClienteRequest.getCedula());
-        newPersona.setApellidos(personaClienteRequest.getApellidos());
-        newPersona.setNombres(personaClienteRequest.getNombres());
-        newPersona.setFechaNacimiento(personaClienteRequest.getFechaNacimiento());
-        newPersona.setEdad(personaClienteRequest.getEdad());
-        newPersona.setGenero(personaClienteRequest.getGenero());
-        newPersona.setTelefono(personaClienteRequest.getTelefono());
-        newPersona.setEmail(personaClienteRequest.getEmail());
-        if(!getPersona(personaClienteRequest.getCedula())){
-            Persona persona = personaRepository.save(newPersona);
-            if(persona!=null){
-                guardarCliente(persona.getCedula(), personaClienteRequest.getEstadoCivil(), personaClienteRequest.getDiscapacidad());
-                Optional<Cliente> cliente = clienteRepository.findByPersona(persona);
-                return new PersonaClienteResponse(persona.getId(),persona.getCedula(),
-                         persona.getApellidos(), persona.getNombres(),persona.getFechaNacimiento(),
-                        persona.getEdad(),persona.getGenero(), persona.getTelefono(), persona.getEmail(), cliente.get().getEstadoCivil(), cliente.get().getDiscapacidad());
+            Persona newPersona = new Persona();
+            newPersona.setCedula(personaClienteRequest.getCedula());
+            newPersona.setApellidos(personaClienteRequest.getApellidos());
+            newPersona.setNombres(personaClienteRequest.getNombres());
+            newPersona.setFechaNacimiento(personaClienteRequest.getFechaNacimiento());
+            newPersona.setEdad(personaClienteRequest.getEdad());
+            newPersona.setGenero(personaClienteRequest.getGenero());
+            newPersona.setTelefono(personaClienteRequest.getTelefono());
+            newPersona.setEmail(personaClienteRequest.getEmail());
+            newPersona.setUbicacion(guardarUbicacion(personaClienteRequest.getBarrio(), personaClienteRequest.getIdCanton(),
+                    personaClienteRequest.getIdParroquia(), personaClienteRequest.getIdProvincia()));
+            if(!getPersona(personaClienteRequest.getCedula())){
+                Persona persona = personaRepository.save(newPersona);
+                if(persona!=null){
+                    guardarCliente(persona.getCedula(), personaClienteRequest.getEstadoCivil(), personaClienteRequest.getDiscapacidad());
+                    Optional<Cliente> cliente = clienteRepository.findByPersona(persona);
+
+                    Optional<Canton> canton = cantonRepository.findById(personaClienteRequest.getIdCanton());
+                    Optional<Parroquia> parroquia = parroquiaRepository.findById(personaClienteRequest.getIdParroquia());
+                    Optional<Provincia> provincia = provinciaRepository.findById(personaClienteRequest.getIdProvincia());
+                    return new PersonaClienteResponse(persona.getId(),persona.getCedula(),
+                            persona.getApellidos(), persona.getNombres(),persona.getFechaNacimiento(),
+                            persona.getEdad(),persona.getGenero(), persona.getTelefono(), persona.getEmail(), cliente.get().getEstadoCivil(), cliente.get().getDiscapacidad(),
+                            personaClienteRequest.getBarrio(),parroquia.get().getParroquia(), canton.get().getCanton(), provincia.get().getProvincia());
+
+                }else {
+                    log.error("No se puedo guardar el cliente con cédula: {} e email: {}", personaClienteRequest.getCedula(), personaClienteRequest.getEmail());
+                    throw new BadRequestException("No se pudo guardar el cliente");
+                }
             }else {
-                log.error("No se puedo guardar el cliente con cédula: {} e email: {}", personaClienteRequest.getCedula(), personaClienteRequest.getEmail());
-                throw new BadRequestException("No se pudo guardar el cliente");
+                log.error("La cédula ya está registrada: {}", personaClienteRequest.getCedula());
+                throw new BadRequestException("La cedula ingresada, ya esta registrada, si la cedula le pertenece contactenos a");
             }
-        }else {
-            log.error("La cédula ya está registrada: {}", personaClienteRequest.getCedula());
-            throw new BadRequestException("La cedula ingresada, ya esta registrada, si la cedula le pertenece contactenos a");
-        }
+
+
+
     }
     //Guardar Cliente
     private boolean guardarCliente(String cedula,String estado, Boolean discapacidad){
@@ -127,25 +159,55 @@ public class PersonaService implements UserDetailsService {
 
     //Guardar Cliente
     private boolean guardarUsuario(String cedula,String clave){
-
         Optional<Persona> optionalPersona = personaRepository.findByCedula(cedula);
         if(optionalPersona.isPresent()){
             Persona persona = optionalPersona.get();
             Usuario newUsuario = new Usuario();
             newUsuario.setClave(clave);
-
             newUsuario.setPersona(persona);
             Usuario user = usuarioRepository.save(newUsuario);
             if(user!=null){
                 return true;
             }else{
                 throw new BadRequestException("Usuario no registrado");
-
             }
-
         }else{
             throw new BadRequestException("La cedula ingresada, no está registrada");
+        }
+    }
 
+    private Ubicacion guardarUbicacion(String barrio, Long idCanton, Long idParroquia, Long idProvincia){
+        Optional<Canton> optionalCanton = cantonRepository.findById(idCanton);
+        if(optionalCanton.isPresent()){
+            Optional<Parroquia> optionalParroquia = parroquiaRepository.findById(idParroquia);
+            if(optionalParroquia.isPresent()){
+                Optional<Provincia> optionalProvincia = provinciaRepository.findById(idProvincia);
+                if (optionalProvincia.isPresent()) {
+                    Optional<Ubicacion> optionalUbicacion = ubicacionRepository.findByBarrioLikeIgnoreCase(barrio);
+                    if (!optionalUbicacion.isPresent()) {
+                        Ubicacion newUbicacion = new Ubicacion();
+                        newUbicacion.setBarrio(barrio);
+                        newUbicacion.setCanton(optionalCanton.get());
+                        newUbicacion.setParroquia(optionalParroquia.get());
+                        newUbicacion.setProvincia(optionalProvincia.get());
+                        Ubicacion ubicacion = ubicacionRepository.save(newUbicacion);
+                        if(ubicacion!=null){
+                            return ubicacion;
+                        }else{
+                            throw new BadRequestException("Ubicacion no registrada");
+                        }
+                    }else{
+                        throw new BadRequestException("Ya existe un barrio llamado " +barrio);
+                    }
+
+                }else{
+                    throw new BadRequestException("No existe una provincia con id" +idProvincia);
+                }
+            }else{
+                throw new BadRequestException("No existe una parroquia con id" +idParroquia);
+            }
+        }else{
+            throw new BadRequestException("No existe un canton con id" +idCanton);
         }
     }
 

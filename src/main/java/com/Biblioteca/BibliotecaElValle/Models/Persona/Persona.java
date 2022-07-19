@@ -1,5 +1,6 @@
 package com.Biblioteca.BibliotecaElValle.Models.Persona;
 
+import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Ubicacion;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,4 +45,8 @@ public class Persona implements Serializable {
 
     @OneToOne(mappedBy = "persona")
     private Usuario usuarios;
+
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinColumn(name = "id_ubicacion",referencedColumnName = "id")
+    private Ubicacion ubicacion;
 }

@@ -1,6 +1,8 @@
 package com.Biblioteca.BibliotecaElValle.Models.Persona;
 
+import com.Biblioteca.BibliotecaElValle.Models.Servicio.Servicio;
 import com.Biblioteca.BibliotecaElValle.Models.Servicio.ServicioCliente;
+import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Ubicacion;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,4 +37,7 @@ public class Cliente implements Serializable {
 
     @OneToMany (targetEntity = ServicioCliente.class, mappedBy = "cliente")
     private List<ServicioCliente> servicioCliente;
+
+
+
 }
