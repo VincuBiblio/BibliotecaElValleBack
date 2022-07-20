@@ -1,5 +1,6 @@
 package com.Biblioteca.BibliotecaElValle.Models.Persona;
 
+import com.Biblioteca.BibliotecaElValle.Models.Cursos.Curso;
 import com.Biblioteca.BibliotecaElValle.Models.Servicio.Servicio;
 import com.Biblioteca.BibliotecaElValle.Models.Servicio.ServicioCliente;
 import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Ubicacion;
@@ -38,6 +39,14 @@ public class Cliente implements Serializable {
     @OneToMany (targetEntity = ServicioCliente.class, mappedBy = "cliente")
     private List<ServicioCliente> servicioCliente;
 
-
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "cursos_clientes",
+            joinColumns = @JoinColumn(name = "cliente_id"),
+            inverseJoinColumns = @JoinColumn(name = "curso_id")
+    )
+    private List<Curso> cursos = new ArrayList<>();
 
 }

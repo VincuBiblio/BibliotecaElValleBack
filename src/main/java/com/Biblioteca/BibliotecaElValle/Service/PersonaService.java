@@ -272,4 +272,6 @@ public class PersonaService implements UserDetailsService {
         return jwtUtil.generateToken(registerRequest.getEmail());
     }
 
+
+
 }
