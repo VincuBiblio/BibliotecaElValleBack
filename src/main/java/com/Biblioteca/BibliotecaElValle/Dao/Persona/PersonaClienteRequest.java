@@ -8,6 +8,7 @@ import java.util.Date;
 @Data
 public class PersonaClienteRequest implements Serializable {
 
+    private Long id;
 
     private String cedula;
 
@@ -30,6 +31,8 @@ public class PersonaClienteRequest implements Serializable {
     private Boolean discapacidad;
 
     private String barrio;
+
+    private Long idBarrio;
 
     private Long idCanton;
 

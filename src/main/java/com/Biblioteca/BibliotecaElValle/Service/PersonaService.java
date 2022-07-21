@@ -7,17 +7,11 @@ import com.Biblioteca.BibliotecaElValle.Excepciones.BadRequestException;
 import com.Biblioteca.BibliotecaElValle.Models.Persona.Cliente;
 import com.Biblioteca.BibliotecaElValle.Models.Persona.Persona;
 import com.Biblioteca.BibliotecaElValle.Models.Persona.Usuario;
-import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Canton;
-import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Parroquia;
-import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Provincia;
-import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.Ubicacion;
+import com.Biblioteca.BibliotecaElValle.Models.Ubicacion.*;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.ClienteRepository;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.PersonaRepository;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.UsuarioRepository;
-import com.Biblioteca.BibliotecaElValle.Repository.Ubicacion.CantonRepository;
-import com.Biblioteca.BibliotecaElValle.Repository.Ubicacion.ParroquiaRepository;
-import com.Biblioteca.BibliotecaElValle.Repository.Ubicacion.ProvinciaRepository;
-import com.Biblioteca.BibliotecaElValle.Repository.Ubicacion.UbicacionRepository;
+import com.Biblioteca.BibliotecaElValle.Repository.Ubicacion.*;
 import com.Biblioteca.BibliotecaElValle.Security.jwt.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +52,9 @@ public class PersonaService implements UserDetailsService {
     private UbicacionRepository ubicacionRepository;
 
     @Autowired
+    private BarrioRepository barrioRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     @Autowired
@@ -65,6 +62,9 @@ public class PersonaService implements UserDetailsService {
 
     @Transactional
     public PersonaClienteResponse registrarCliente(PersonaClienteRequest personaClienteRequest){
+
+            Optional<Persona> optionalPersona = personaRepository.findByEmail(personaClienteRequest.getEmail());
+            if(!optionalPersona.isPresent()){
             Persona newPersona = new Persona();
             newPersona.setCedula(personaClienteRequest.getCedula());
             newPersona.setApellidos(personaClienteRequest.getApellidos());
@@ -74,7 +74,7 @@ public class PersonaService implements UserDetailsService {
             newPersona.setGenero(personaClienteRequest.getGenero());
             newPersona.setTelefono(personaClienteRequest.getTelefono());
             newPersona.setEmail(personaClienteRequest.getEmail());
-            newPersona.setUbicacion(guardarUbicacion(personaClienteRequest.getBarrio(), personaClienteRequest.getIdCanton(),
+            newPersona.setUbicacion(guardarUbicacion(personaClienteRequest.getIdBarrio(), personaClienteRequest.getIdCanton(),
                     personaClienteRequest.getIdParroquia(), personaClienteRequest.getIdProvincia()));
             if(!getPersona(personaClienteRequest.getCedula())){
                 Persona persona = personaRepository.save(newPersona);
@@ -98,6 +98,11 @@ public class PersonaService implements UserDetailsService {
                 log.error("La cédula ya está registrada: {}", personaClienteRequest.getCedula());
                 throw new BadRequestException("La cedula ingresada, ya esta registrada, si la cedula le pertenece contactenos a");
             }
+            }else {
+                //log.error("La cédula ya está registrada: {}", personaClienteRequest.getCedula());
+                throw new BadRequestException("El email ingresado, ya esta registrado");
+            }
+
 
 
 
@@ -129,30 +134,35 @@ public class PersonaService implements UserDetailsService {
 
     @Transactional
     public PersonaUsuarioResponse registrarUsuario(PersonaUsuarioRequest personaUsuarioRequest) throws Exception {
-        Persona newPersona = new Persona();
-        newPersona.setCedula(personaUsuarioRequest.getCedula());
-        newPersona.setApellidos(personaUsuarioRequest.getApellidos());
-        newPersona.setNombres(personaUsuarioRequest.getNombres());
-        newPersona.setFechaNacimiento(personaUsuarioRequest.getFechaNacimiento());
-        newPersona.setEdad(personaUsuarioRequest.getEdad());
-        newPersona.setGenero(personaUsuarioRequest.getGenero());
-        newPersona.setTelefono(personaUsuarioRequest.getTelefono());
-        newPersona.setEmail(personaUsuarioRequest.getEmail());
-        if(!getPersona(personaUsuarioRequest.getCedula())){
-            Persona persona = personaRepository.save(newPersona);
-            if(persona!=null){
-                guardarUsuario(persona.getCedula(),personaUsuarioRequest.getClave());
-                Optional<Usuario> user = usuarioRepository.findByPersona(persona);
-                return new PersonaUsuarioResponse(persona.getId(),persona.getCedula(),
-                        persona.getApellidos(), persona.getNombres(),persona.getFechaNacimiento(),
-                        persona.getEdad(),persona.getGenero(), persona.getTelefono(), persona.getEmail(),user.get().getClave(), generateTokenSignUp(personaUsuarioRequest));
-            }else {
-                log.error("No se puedo guardar el usuario con cédula: {} e email: {}", personaUsuarioRequest.getCedula(), personaUsuarioRequest.getEmail());
-                throw new BadRequestException("No se pudo guardar el usuario");
+        Optional<Persona> optionalPersona = personaRepository.findByEmail(personaUsuarioRequest.getEmail());
+        if(!optionalPersona.isPresent()) {
+            Persona newPersona = new Persona();
+            newPersona.setCedula(personaUsuarioRequest.getCedula());
+            newPersona.setApellidos(personaUsuarioRequest.getApellidos());
+            newPersona.setNombres(personaUsuarioRequest.getNombres());
+            newPersona.setFechaNacimiento(personaUsuarioRequest.getFechaNacimiento());
+            newPersona.setEdad(personaUsuarioRequest.getEdad());
+            newPersona.setGenero(personaUsuarioRequest.getGenero());
+            newPersona.setTelefono(personaUsuarioRequest.getTelefono());
+            newPersona.setEmail(personaUsuarioRequest.getEmail());
+            if (!getPersona(personaUsuarioRequest.getCedula())) {
+                Persona persona = personaRepository.save(newPersona);
+                if (persona != null) {
+                    guardarUsuario(persona.getCedula(), personaUsuarioRequest.getClave());
+                    Optional<Usuario> user = usuarioRepository.findByPersona(persona);
+                    return new PersonaUsuarioResponse(persona.getId(), persona.getCedula(),
+                            persona.getApellidos(), persona.getNombres(), persona.getFechaNacimiento(),
+                            persona.getEdad(), persona.getGenero(), persona.getTelefono(), persona.getEmail(), user.get().getClave(), generateTokenSignUp(personaUsuarioRequest));
+                } else {
+                    log.error("No se puedo guardar el usuario con cédula: {} e email: {}", personaUsuarioRequest.getCedula(), personaUsuarioRequest.getEmail());
+                    throw new BadRequestException("No se pudo guardar el usuario");
+                }
+            } else {
+                log.error("La cédula ya está registrada: {}", personaUsuarioRequest.getCedula());
+                throw new BadRequestException("La cedula ingresada, ya esta registrada, si la cedula le pertenece contactenos a");
             }
         }else {
-            log.error("La cédula ya está registrada: {}", personaUsuarioRequest.getCedula());
-            throw new BadRequestException("La cedula ingresada, ya esta registrada, si la cedula le pertenece contactenos a");
+            throw new BadRequestException("El email ingresado, ya esta registrado");
         }
     }
 
@@ -176,39 +186,46 @@ public class PersonaService implements UserDetailsService {
         }
     }
 
-    private Ubicacion guardarUbicacion(String barrio, Long idCanton, Long idParroquia, Long idProvincia){
-        Optional<Canton> optionalCanton = cantonRepository.findById(idCanton);
-        if(optionalCanton.isPresent()){
-            Optional<Parroquia> optionalParroquia = parroquiaRepository.findById(idParroquia);
-            if(optionalParroquia.isPresent()){
-                Optional<Provincia> optionalProvincia = provinciaRepository.findById(idProvincia);
-                if (optionalProvincia.isPresent()) {
-                    Optional<Ubicacion> optionalUbicacion = ubicacionRepository.findByBarrioLikeIgnoreCase(barrio);
-                    if (!optionalUbicacion.isPresent()) {
-                        Ubicacion newUbicacion = new Ubicacion();
-                        newUbicacion.setBarrio(barrio);
-                        newUbicacion.setCanton(optionalCanton.get());
-                        newUbicacion.setParroquia(optionalParroquia.get());
-                        newUbicacion.setProvincia(optionalProvincia.get());
-                        Ubicacion ubicacion = ubicacionRepository.save(newUbicacion);
-                        if(ubicacion!=null){
-                            return ubicacion;
+    private Ubicacion guardarUbicacion(Long idBarrio, Long idCanton, Long idParroquia, Long idProvincia){
+        Optional<Barrio> optionalBarrio = barrioRepository.findById(idBarrio);
+        if(optionalBarrio.isPresent()){
+            Optional<Canton> optionalCanton = cantonRepository.findById(idCanton);
+            if(optionalCanton.isPresent()){
+                Optional<Parroquia> optionalParroquia = parroquiaRepository.findById(idParroquia);
+                if(optionalParroquia.isPresent()){
+                    Optional<Provincia> optionalProvincia = provinciaRepository.findById(idProvincia);
+                    if (optionalProvincia.isPresent()) {
+                        Optional<Ubicacion> optionalUbicacion=  ubicacionRepository.findByBarrioAndCantonAndParroquiaAndProvincia(optionalBarrio.get(),
+                                optionalCanton.get(), optionalParroquia.get(), optionalProvincia.get());
+                        if (!optionalUbicacion.isPresent() ) {
+                            Ubicacion newUbicacion = new Ubicacion();
+                            newUbicacion.setBarrio(optionalBarrio.get());
+                            newUbicacion.setCanton(optionalCanton.get());
+                            newUbicacion.setParroquia(optionalParroquia.get());
+                            newUbicacion.setProvincia(optionalProvincia.get());
+                            Ubicacion ubicacion = ubicacionRepository.save(newUbicacion);
+                            if(ubicacion!=null){
+                                return ubicacion;
+                            }else{
+                                throw new BadRequestException("Ubicacion no registrada");
+                            }
                         }else{
-                            throw new BadRequestException("Ubicacion no registrada");
+                            return optionalUbicacion.get();
                         }
-                    }else{
-                        throw new BadRequestException("Ya existe un barrio llamado " +barrio);
-                    }
 
+                    }else{
+                        throw new BadRequestException("No existe una provincia con id" +idProvincia);
+                    }
                 }else{
-                    throw new BadRequestException("No existe una provincia con id" +idProvincia);
+                    throw new BadRequestException("No existe una parroquia con id" +idParroquia);
                 }
             }else{
-                throw new BadRequestException("No existe una parroquia con id" +idParroquia);
+                throw new BadRequestException("No existe un canton con id" +idCanton);
             }
         }else{
-            throw new BadRequestException("No existe un canton con id" +idCanton);
+            throw new BadRequestException("No existe un barrio con id" +idBarrio);
         }
+
     }
 
     private boolean getPersona(String cedula) {
@@ -272,6 +289,55 @@ public class PersonaService implements UserDetailsService {
         return jwtUtil.generateToken(registerRequest.getEmail());
     }
 
+
+    //ACTUALIZAR CLIENTE
+    public boolean updateCliente(PersonaClienteRequest request){
+        Optional<Persona> optionalPersona = personaRepository.findById(request.getId());
+        if(optionalPersona.isPresent()){
+            optionalPersona.get().setCedula(request.getCedula());
+            optionalPersona.get().setApellidos(request.getApellidos());
+            optionalPersona.get().setNombres(request.getNombres());
+            optionalPersona.get().setFechaNacimiento(request.getFechaNacimiento());
+            optionalPersona.get().setEdad(request.getEdad());
+            optionalPersona.get().setGenero(request.getGenero());
+            optionalPersona.get().setTelefono(request.getTelefono());
+            optionalPersona.get().setEmail( request.getEmail());
+            optionalPersona.get().setUbicacion(guardarUbicacion(request.getIdBarrio(), request.getIdCanton(),
+                    request.getIdParroquia(), request.getIdProvincia()));
+            try{
+                Persona persona = personaRepository.save(optionalPersona.get());
+                if(persona != null){
+                    actualizarCliente(persona, request.getEstadoCivil(), request.getDiscapacidad());
+                }else {
+                    throw new BadRequestException("No se actualizó la persona");
+                }
+            }catch (Exception ex) {
+                throw new BadRequestException("No se actualizó la persona" + ex);
+            }
+        }else{
+            throw new BadRequestException("No existe una persona con id" + request.getId());
+        }
+           return false;
+
+    }
+
+
+    private boolean actualizarCliente(Persona persona,String estado, Boolean discapacidad){
+        Optional<Cliente> optionalCliente = clienteRepository.findByPersona(persona);
+;       if(optionalCliente.isPresent()) {
+            optionalCliente.get().setEstadoCivil(estado);
+            optionalCliente.get().setDiscapacidad(discapacidad);
+
+            try{
+                Cliente cliente = clienteRepository.save(optionalCliente.get());
+                return true;
+            }catch (Exception ex) {
+                throw new BadRequestException("No se actualizó tbl_cliente" + ex);
+            }
+        }
+        throw new BadRequestException("No existe el cliente");
+
+    }
 
 
 }

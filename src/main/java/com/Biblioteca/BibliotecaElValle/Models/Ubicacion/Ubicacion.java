@@ -24,7 +24,9 @@ public class Ubicacion implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String barrio;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "barrio_id", referencedColumnName = "id")
+    private Barrio barrio;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="canton_id", referencedColumnName = "id")

@@ -2,6 +2,7 @@ package com.Biblioteca.BibliotecaElValle.Controller;
 
 
 import com.Biblioteca.BibliotecaElValle.Dao.Persona.*;
+import com.Biblioteca.BibliotecaElValle.Excepciones.Mensaje;
 import com.Biblioteca.BibliotecaElValle.Service.PersonaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,5 +42,11 @@ public class PersonaController {
     public ResponseEntity<?> login(@RequestBody UsuarioRequest request) throws Exception {
         PersonaUsuarioResponse response = personaService.login(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping()
+    public ResponseEntity<?> update(@RequestBody PersonaClienteRequest request){
+        personaService.updateCliente( request);
+        return new ResponseEntity(new Mensaje("Cliente Actualizado"), HttpStatus.OK);
     }
 }
