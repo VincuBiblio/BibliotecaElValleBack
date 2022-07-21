@@ -81,4 +81,7 @@ public class PersonaClienteResponse implements Serializable {
         this.canton = canton;
         this.provincia = provincia;
     }
+
+    public PersonaClienteResponse() {
+    }
 }

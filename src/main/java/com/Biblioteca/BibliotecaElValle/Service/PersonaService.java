@@ -23,8 +23,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -70,7 +75,7 @@ public class PersonaService implements UserDetailsService {
             newPersona.setApellidos(personaClienteRequest.getApellidos());
             newPersona.setNombres(personaClienteRequest.getNombres());
             newPersona.setFechaNacimiento(personaClienteRequest.getFechaNacimiento());
-            newPersona.setEdad(personaClienteRequest.getEdad());
+            newPersona.setEdad(edad(personaClienteRequest.getFechaNacimiento()));
             newPersona.setGenero(personaClienteRequest.getGenero());
             newPersona.setTelefono(personaClienteRequest.getTelefono());
             newPersona.setEmail(personaClienteRequest.getEmail());
@@ -336,8 +341,72 @@ public class PersonaService implements UserDetailsService {
             }
         }
         throw new BadRequestException("No existe el cliente");
-
     }
 
 
+    //LISTAR TODOS LOS CLIENTES
+    public List<PersonaClienteResponse> listAllClientes(){
+        List<Cliente> cliente = clienteRepository.findAll();
+        return cliente.stream().map(clienteRequest->{
+            PersonaClienteResponse pcr = new PersonaClienteResponse();
+            pcr.setId(clienteRequest.getId());
+            pcr.setCedula(clienteRequest.getPersona().getCedula());
+            pcr.setNombres(clienteRequest.getPersona().getNombres());
+            pcr.setApellidos(clienteRequest.getPersona().getApellidos());
+            pcr.setFechaNacimiento(clienteRequest.getPersona().getFechaNacimiento());
+            pcr.setEdad(clienteRequest.getPersona().getEdad());
+            pcr.setGenero(clienteRequest.getPersona().getGenero());
+            pcr.setTelefono(clienteRequest.getPersona().getTelefono());
+            pcr.setEmail(clienteRequest.getPersona().getEmail());
+            pcr.setEstadoCivil(clienteRequest.getEstadoCivil());
+            pcr.setDiscapacidad(clienteRequest.getDiscapacidad());
+            pcr.setBarrio(clienteRequest.getPersona().getUbicacion().getBarrio().getBarrio());
+            pcr.setParroquia(clienteRequest.getPersona().getUbicacion().getParroquia().getParroquia());
+            pcr.setCanton(clienteRequest.getPersona().getUbicacion().getCanton().getCanton());
+            pcr.setProvincia(clienteRequest.getPersona().getUbicacion().getProvincia().getProvincia());
+            return pcr;
+        }).collect(Collectors.toList());
+    }
+
+    //LISTAR CLIENTES POR CEDULA
+    public PersonaClienteResponse ClienteByCedula(String cedula){
+        PersonaClienteResponse response = new PersonaClienteResponse();
+        Optional<Persona> persona = personaRepository.findByCedula(cedula);
+        if(persona.isPresent()) {
+            Optional<Cliente> cliente = clienteRepository.findByPersona(persona.get());
+            if(cliente.isPresent()) {
+                response.setId(persona.get().getId());
+                response.setCedula(persona.get().getCedula());
+                response.setNombres(persona.get().getNombres());
+                response.setApellidos(persona.get().getApellidos());
+                response.setFechaNacimiento(persona.get().getFechaNacimiento());
+                response.setEdad(persona.get().getEdad());
+                response.setGenero(persona.get().getGenero());
+                response.setTelefono(persona.get().getTelefono());
+                response.setEmail(persona.get().getEmail());
+                response.setEstadoCivil(cliente.get().getEstadoCivil());
+                response.setDiscapacidad(cliente.get().getDiscapacidad());
+                response.setBarrio(persona.get().getUbicacion().getBarrio().getBarrio());
+                response.setParroquia(persona.get().getUbicacion().getParroquia().getParroquia());
+                response.setCanton(persona.get().getUbicacion().getCanton().getCanton());
+                response.setProvincia(persona.get().getUbicacion().getProvincia().getProvincia());
+                return response;
+                }else{
+                throw new BadRequestException("No existe un persona con cédula" +cedula);
+            }
+
+            }else{
+                throw new BadRequestException("No existe un cliente vinculado a esa persona");
+            }
+
+        }
+
+
+        //CALCULAR EDAD
+    public Long edad (Date fechaNacimiento){
+        Period edadC = Period.between(LocalDate.of(fechaNacimiento.getYear(),fechaNacimiento.getMonth(), fechaNacimiento.getDay()), LocalDate.now());
+        int años =edadC.getYears()-1900;
+        System.out.println("AÑOS"+años);
+        return Long.parseLong(años+"");
+    }
 }
