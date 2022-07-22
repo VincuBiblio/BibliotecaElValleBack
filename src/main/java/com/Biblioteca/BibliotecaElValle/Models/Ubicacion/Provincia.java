@@ -27,6 +27,6 @@ public class Provincia implements Serializable {
     @OneToMany (targetEntity = Canton.class, mappedBy = "provincia")
     private List<Canton> canton;
 
-    @OneToOne(mappedBy = "provincia")
-    private Ubicacion ubicacion;
+    @OneToMany(targetEntity = Ubicacion.class,mappedBy = "provincia")
+    private List<Ubicacion> ubicacion;
 }

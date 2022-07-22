@@ -2,11 +2,14 @@ package com.Biblioteca.BibliotecaElValle.Controller;
 
 
 import com.Biblioteca.BibliotecaElValle.Dao.Ubicacion.BarrioRequest;
+import com.Biblioteca.BibliotecaElValle.Dao.Ubicacion.BarrioResponse;
 import com.Biblioteca.BibliotecaElValle.Service.BarrioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins= {"http://localhost:4200"})
 @RestController
@@ -21,4 +24,15 @@ public class BarrioController {
         return new ResponseEntity<>(barrioService.regitrarBarrio(request), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<BarrioResponse> barrioById(@PathVariable Long id){
+        BarrioResponse response = barrioService.barrioById(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<BarrioResponse>> all(){
+        List<BarrioResponse> allClientes = barrioService.lista();
+        return new ResponseEntity<>(allClientes, HttpStatus.OK);
+    }
 }

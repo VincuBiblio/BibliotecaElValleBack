@@ -31,7 +31,7 @@ public class Canton implements Serializable {
     @OneToMany (targetEntity = Parroquia.class, mappedBy = "canton")
     private List<Parroquia> parroquia;
 
-    @OneToOne(mappedBy = "canton")
-    private Ubicacion ubicacion;
+    @OneToMany(targetEntity = Ubicacion.class,mappedBy = "canton")
+    private List<Ubicacion> ubicacion;
 
 }

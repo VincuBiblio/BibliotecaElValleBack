@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface BarrioRepository extends JpaRepository<Barrio, Long> {
 
     Optional<Barrio> findByBarrioLikeIgnoreCase(String barrio);
+
     List<Barrio> findAllById(Long id);
 }

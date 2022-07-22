@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 
 @Table(name = "barrio")
@@ -23,6 +24,6 @@ public class Barrio implements Serializable {
 
     private String barrio;
 
-    @OneToOne(mappedBy = "barrio")
-    private Ubicacion ubicacion;
+    @OneToMany(targetEntity = Ubicacion.class,mappedBy = "barrio")
+    private List<Ubicacion> ubicacion;
 }
