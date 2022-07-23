@@ -9,4 +9,6 @@ public class ParroquiaResponse implements Serializable {
     private Long id;
 
     private String parroquia;
+
+    private Long idCanton;
 }

@@ -10,4 +10,6 @@ public class CantonResponse implements Serializable {
     private Long id;
 
     private String canton;
+
+    private Long idProvincia;
 }

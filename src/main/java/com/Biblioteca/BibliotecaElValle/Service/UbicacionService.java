@@ -38,6 +38,7 @@ public class UbicacionService {
             CantonResponse cantonResponse = new CantonResponse();
             cantonResponse.setId(cantonRequest.getId());
             cantonResponse.setCanton(cantonRequest.getCanton());
+            cantonResponse.setIdProvincia(cantonRequest.getProvincia().getId());
             return cantonResponse;
         }).collect(Collectors.toList());
     }
@@ -50,6 +51,7 @@ public class UbicacionService {
             ParroquiaResponse parroquiaResponse = new ParroquiaResponse();
             parroquiaResponse.setId(parroquiaRequest.getId());
             parroquiaResponse.setParroquia(parroquiaRequest.getParroquia());
+            parroquiaResponse.setIdCanton(parroquiaRequest.getCanton().getId());
             return parroquiaResponse;
         }).collect(Collectors.toList());
     }
