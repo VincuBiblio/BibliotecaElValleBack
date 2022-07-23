@@ -48,12 +48,15 @@ public class BarrioService {
         }
     }
 
-    @Transactional
-    public List<BarrioResponse> lista (){
-        List<Barrio> lista = barrioRepository.findAll();
-        return lista.stream().map(b->{
+
+
+    //LISTAR TODOS LOS BARRIOS
+    public List<BarrioResponse> listAllBarrios() {
+        List<Barrio> barrio = barrioRepository.findAll();
+        return barrio.stream().map(barrioRequest->{
             BarrioResponse response = new BarrioResponse();
-            response.setBarrio(b.getBarrio());
+            response.setId(barrioRequest.getId());
+            response.setBarrio(barrioRequest.getBarrio());
             return response;
         }).collect(Collectors.toList());
     }

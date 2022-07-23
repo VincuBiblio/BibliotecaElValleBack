@@ -2,11 +2,14 @@ package com.Biblioteca.BibliotecaElValle.Controller;
 
 
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoRequest;
+import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoResponse;
 import com.Biblioteca.BibliotecaElValle.Service.CursoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins= {"http://localhost:4200"})
 @RestController
@@ -26,5 +29,11 @@ public class CursoController {
     public ResponseEntity<?> agregar(@PathVariable Long idCliente, @PathVariable Long idCurso){
 
         return new ResponseEntity<>( cursoService.agregarClienteCurso(idCliente,idCurso), HttpStatus.OK);
+    }
+
+    @GetMapping("/allCursos")
+    public ResponseEntity<List<CursoResponse>> listAllCursos(){
+        List<CursoResponse> curso = cursoService.listAllCursos();
+        return new ResponseEntity<List<CursoResponse>>(curso, HttpStatus.OK);
     }
 }

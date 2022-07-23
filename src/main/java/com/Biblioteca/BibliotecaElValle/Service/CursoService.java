@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -64,4 +66,18 @@ public class CursoService {
             throw new BadRequestException("No existe un cliente con id" +idCliente);
         }
     }
+
+    //LISTAR TODOS LOS CURSOS
+        public List<CursoResponse> listAllCursos(){
+            List<Curso> curso = cursoRepository.findAll();
+            return curso.stream().map(cursoRequest->{
+                CursoResponse cr= new CursoResponse();
+                cr.setId(cursoRequest.getId());
+                cr.setNombre(cursoRequest.getNombre());
+                cr.setResponsable(cursoRequest.getResponsable());
+                cr.setFechaInicio(cursoRequest.getFechaInicio());
+                cr.setFechaFin(cursoRequest.getFechaFin());
+                return  cr;
+            }).collect(Collectors.toList());
+        }
 }

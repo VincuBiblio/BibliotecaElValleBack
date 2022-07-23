@@ -32,7 +32,7 @@ public class BarrioController {
 
     @GetMapping("/all")
     public ResponseEntity<List<BarrioResponse>> all(){
-        List<BarrioResponse> allClientes = barrioService.lista();
-        return new ResponseEntity<>(allClientes, HttpStatus.OK);
+        List<BarrioResponse> allBarrios = barrioService.listAllBarrios();
+        return new ResponseEntity<>(allBarrios, HttpStatus.OK);
     }
 }
