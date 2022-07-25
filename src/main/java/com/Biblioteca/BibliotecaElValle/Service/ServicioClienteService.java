@@ -68,6 +68,7 @@ public class ServicioClienteService {
         if(!lista.isEmpty()){
             return  lista.stream().map(servicioCliente -> {
                 ServicioClienteListResponse response = new ServicioClienteListResponse();
+                response.setGenero(servicioCliente.getCliente().getPersona().getGenero());
                 response.setServicio(servicioCliente.getServicio().getNombre());
                 return response;
             }).collect(Collectors.toList());

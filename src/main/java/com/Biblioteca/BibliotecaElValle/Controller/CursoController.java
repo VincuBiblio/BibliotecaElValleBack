@@ -3,6 +3,7 @@ package com.Biblioteca.BibliotecaElValle.Controller;
 
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoRequest;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoResponse;
+import com.Biblioteca.BibliotecaElValle.Repository.Curso.CursoClienteConsultaResponse;
 import com.Biblioteca.BibliotecaElValle.Service.CursoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,5 +36,11 @@ public class CursoController {
     public ResponseEntity<List<CursoResponse>> listAllCursos(){
         List<CursoResponse> curso = cursoService.listAllCursos();
         return new ResponseEntity<List<CursoResponse>>(curso, HttpStatus.OK);
+    }
+
+    @GetMapping("/consultaClienteCurso/{mes}/{anio}")
+    public ResponseEntity<List<CursoClienteConsultaResponse>> listAllCursos(@PathVariable Long mes,@PathVariable Long  anio){
+        List<CursoClienteConsultaResponse> curso = cursoService.listaPorMesAndAnio(mes, anio);
+        return new ResponseEntity<>(curso, HttpStatus.OK);
     }
 }

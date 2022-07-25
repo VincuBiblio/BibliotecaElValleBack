@@ -29,9 +29,12 @@ public class Curso implements Serializable {
 
     private String responsable;
 
-    @Column(name = "fecha_inicio")
-    @Temporal(TemporalType.DATE)
-    private Date fechaInicio;
+
+    private Long diaInicio;
+
+    private Long mesInicio;
+
+    private Long anioInicio;
 
     @Column(name = "fecha_fin")
     @Temporal(TemporalType.DATE)

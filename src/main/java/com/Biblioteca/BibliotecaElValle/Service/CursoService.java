@@ -1,11 +1,13 @@
 package com.Biblioteca.BibliotecaElValle.Service;
 
 
+import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoClienteResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoRequest;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoResponse;
 import com.Biblioteca.BibliotecaElValle.Excepciones.BadRequestException;
 import com.Biblioteca.BibliotecaElValle.Models.Cursos.Curso;
 import com.Biblioteca.BibliotecaElValle.Models.Persona.Cliente;
+import com.Biblioteca.BibliotecaElValle.Repository.Curso.CursoClienteConsultaResponse;
 import com.Biblioteca.BibliotecaElValle.Repository.Curso.CursoRepository;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.ClienteRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,7 +38,9 @@ public class CursoService {
         Curso newCurso = new Curso();
         newCurso.setNombre(cursoRequest.getNombre());
         newCurso.setResponsable(cursoRequest.getResponsable());
-        newCurso.setFechaInicio(cursoRequest.getFechaInicio());
+        newCurso.setDiaInicio((long)cursoRequest.getFechaInicio().getDate()+1);
+        newCurso.setMesInicio((long)cursoRequest.getFechaInicio().getMonth()+1);
+        newCurso.setAnioInicio((long)cursoRequest.getFechaInicio().getYear()+1900);
         newCurso.setFechaFin(cursoRequest.getFechaFin());
         try{
             cursoRepository.save(newCurso);
@@ -75,9 +82,30 @@ public class CursoService {
                 cr.setId(cursoRequest.getId());
                 cr.setNombre(cursoRequest.getNombre());
                 cr.setResponsable(cursoRequest.getResponsable());
-                cr.setFechaInicio(cursoRequest.getFechaInicio());
+                cr.setFechaInicio(ParseFecha(cursoRequest.getDiaInicio()+"",cursoRequest.getMesInicio()+"",cursoRequest.getAnioInicio()+""));
                 cr.setFechaFin(cursoRequest.getFechaFin());
                 return  cr;
             }).collect(Collectors.toList());
+        }
+
+
+        public static Date ParseFecha(String dia,String mes,String anio){
+
+        String fecha= dia+"/"+mes+"/"+anio;
+            SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+            Date fechaDate = null;
+            try {
+                fechaDate = formato.parse(fecha);
+            }
+            catch (ParseException ex)
+            {
+                System.out.println(ex);
+            }
+            return fechaDate;
+        }
+
+        @Transactional
+    public List<CursoClienteConsultaResponse> listaPorMesAndAnio(Long mes, Long anio){
+       return cursoRepository.findByMesAndAnio(mes, anio);
         }
 }
