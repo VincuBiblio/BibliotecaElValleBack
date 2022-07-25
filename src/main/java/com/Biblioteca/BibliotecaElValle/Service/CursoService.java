@@ -2,6 +2,7 @@ package com.Biblioteca.BibliotecaElValle.Service;
 
 
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoClienteResponse;
+import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoNombreResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoRequest;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoResponse;
 import com.Biblioteca.BibliotecaElValle.Excepciones.BadRequestException;
@@ -106,6 +107,21 @@ public class CursoService {
 
         @Transactional
     public List<CursoClienteConsultaResponse> listaPorMesAndAnio(Long mes, Long anio){
-       return cursoRepository.findByMesAndAnio(mes, anio);
+       return cursoRepository.findDistinctByMesInicioAndAnioInicio(mes, anio);
+        }
+
+
+     @Transactional
+    public List<CursoNombreResponse> listaCursosByMesAndAnio(Long mes, Long anio){
+        List<Curso> result = cursoRepository.findByMesInicioAndAnioInicio(mes, anio);
+        if(!result.isEmpty()){
+            return result.stream().map(curso->{
+                CursoNombreResponse cursoNombrepo = new CursoNombreResponse();
+                cursoNombrepo.setCurso(curso.getNombre());
+                return cursoNombrepo;
+            }).collect(Collectors.toList());
+        }else{
+            throw new BadRequestException("No existe ningun curso según la fecha seleccionada");
+        }
         }
 }

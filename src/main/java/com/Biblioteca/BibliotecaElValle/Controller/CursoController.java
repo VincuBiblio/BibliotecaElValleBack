@@ -1,6 +1,7 @@
 package com.Biblioteca.BibliotecaElValle.Controller;
 
 
+import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoNombreResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoRequest;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoResponse;
 import com.Biblioteca.BibliotecaElValle.Repository.Curso.CursoClienteConsultaResponse;
@@ -41,6 +42,12 @@ public class CursoController {
     @GetMapping("/consultaClienteCurso/{mes}/{anio}")
     public ResponseEntity<List<CursoClienteConsultaResponse>> listAllCursos(@PathVariable Long mes,@PathVariable Long  anio){
         List<CursoClienteConsultaResponse> curso = cursoService.listaPorMesAndAnio(mes, anio);
+        return new ResponseEntity<>(curso, HttpStatus.OK);
+    }
+
+   @GetMapping("/consultaAllCurso/{mes}/{anio}")
+    public ResponseEntity<List<CursoNombreResponse>> listAllCursosNombresByMes(@PathVariable Long mes, @PathVariable Long  anio){
+        List<CursoNombreResponse> curso = cursoService.listaCursosByMesAndAnio(mes, anio);
         return new ResponseEntity<>(curso, HttpStatus.OK);
     }
 }
