@@ -41,4 +41,10 @@ public class ServicioController {
         ServicioResponse ser = servicioService.listServicioById(id);
         return new ResponseEntity<>(ser, HttpStatus.OK);
     }
+
+    @GetMapping("/byNombre/{nombre}")
+    public ResponseEntity<ServicioResponse> listServicioByNombre(@PathVariable String nombre) {
+        ServicioResponse ser = servicioService.listServicioByNombre(nombre);
+        return new ResponseEntity<>(ser, HttpStatus.OK);
+    }
 }

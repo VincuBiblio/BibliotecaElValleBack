@@ -84,4 +84,21 @@ public class ServicioService {
 
         }
     }
+
+    @Transactional
+    public ServicioResponse listServicioByNombre(String nombre){
+        ServicioResponse sr= new ServicioResponse();
+        Optional<Servicio> optional = servicioRepository.findByNombre(nombre);
+        if(optional.isPresent()){
+            sr.setId(optional.get().getId());
+            sr.setNombre(optional.get().getNombre());
+            sr.setDescripcion(optional.get().getDescripcion());
+            sr.setObservacion(optional.get().getObservacion());
+            return  sr;
+        }else{
+            throw new BadRequestException("No existe el servicio con nombre" + nombre);
+
+        }
+    }
+
 }

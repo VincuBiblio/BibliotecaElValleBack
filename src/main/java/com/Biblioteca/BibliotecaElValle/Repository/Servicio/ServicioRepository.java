@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface ServicioRepository extends JpaRepository<Servicio, Long> {
 
     Optional<Servicio> findByNombreLikeIgnoreCase(String nombre);
+
+    Optional<Servicio> findByNombre(String nombre);
 }

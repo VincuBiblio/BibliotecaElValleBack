@@ -303,7 +303,7 @@ public class PersonaService implements UserDetailsService {
             optionalPersona.get().setApellidos(request.getApellidos());
             optionalPersona.get().setNombres(request.getNombres());
             optionalPersona.get().setFechaNacimiento(request.getFechaNacimiento());
-            optionalPersona.get().setEdad(request.getEdad());
+            optionalPersona.get().setEdad(edad(request.getFechaNacimiento()));
             optionalPersona.get().setGenero(request.getGenero());
             optionalPersona.get().setTelefono(request.getTelefono());
             optionalPersona.get().setEmail( request.getEmail());
