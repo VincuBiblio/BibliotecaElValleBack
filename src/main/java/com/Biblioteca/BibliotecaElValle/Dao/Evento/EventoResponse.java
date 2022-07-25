@@ -9,18 +9,21 @@ import java.util.Date;
 @Data
 public class EventoResponse implements Serializable {
 
-    private Long id;
+
 
     private String descripcion;
 
-    private Date fecha;
 
     private Long participantes;
 
-    public EventoResponse(Long id, String descripcion, Date fecha, Long participantes) {
-        this.id = id;
+    public EventoResponse(String descripcion, Long participantes) {
+
         this.descripcion = descripcion;
-        this.fecha = fecha;
+
         this.participantes = participantes;
+    }
+
+    public EventoResponse() {
+
     }
 }

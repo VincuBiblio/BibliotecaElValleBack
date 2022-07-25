@@ -360,9 +360,13 @@ public class PersonaService implements UserDetailsService {
             pcr.setEmail(clienteRequest.getPersona().getEmail());
             pcr.setEstadoCivil(clienteRequest.getEstadoCivil());
             pcr.setDiscapacidad(clienteRequest.getDiscapacidad());
+            pcr.setIdBarrio(clienteRequest.getPersona().getUbicacion().getBarrio().getId());
             pcr.setBarrio(clienteRequest.getPersona().getUbicacion().getBarrio().getBarrio());
+            pcr.setIdParroquia(clienteRequest.getPersona().getUbicacion().getParroquia().getId());
             pcr.setParroquia(clienteRequest.getPersona().getUbicacion().getParroquia().getParroquia());
+            pcr.setIdCanton(clienteRequest.getPersona().getUbicacion().getCanton().getId());
             pcr.setCanton(clienteRequest.getPersona().getUbicacion().getCanton().getCanton());
+            pcr.setIdProvincia(clienteRequest.getPersona().getUbicacion().getProvincia().getId());
             pcr.setProvincia(clienteRequest.getPersona().getUbicacion().getProvincia().getProvincia());
             return pcr;
         }).collect(Collectors.toList());
@@ -386,9 +390,13 @@ public class PersonaService implements UserDetailsService {
                 response.setEmail(persona.get().getEmail());
                 response.setEstadoCivil(cliente.get().getEstadoCivil());
                 response.setDiscapacidad(cliente.get().getDiscapacidad());
+                response.setIdBarrio(persona.get().getUbicacion().getBarrio().getId());
                 response.setBarrio(persona.get().getUbicacion().getBarrio().getBarrio());
+                response.setIdParroquia(persona.get().getUbicacion().getParroquia().getId());
                 response.setParroquia(persona.get().getUbicacion().getParroquia().getParroquia());
+                response.setIdCanton(persona.get().getUbicacion().getCanton().getId());
                 response.setCanton(persona.get().getUbicacion().getCanton().getCanton());
+                response.setIdProvincia(persona.get().getUbicacion().getProvincia().getId());
                 response.setProvincia(persona.get().getUbicacion().getProvincia().getProvincia());
                 return response;
                 }else{

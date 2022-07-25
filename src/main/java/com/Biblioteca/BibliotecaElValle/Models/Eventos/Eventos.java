@@ -24,7 +24,11 @@ public class Eventos implements Serializable {
 
     private String descripcion;
 
-    private Date fecha;
+    private Long dia;
+
+    private Long mes;
+
+    private Long anio;
 
     private Long participantes;
 }

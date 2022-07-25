@@ -46,7 +46,7 @@ public class CursoController {
     }
 
    @GetMapping("/consultaAllCurso/{mes}/{anio}")
-    public ResponseEntity<List<CursoNombreResponse>> listAllCursosNombresByMes(@PathVariable Long mes, @PathVariable Long  anio){
+    public ResponseEntity<List<CursoNombreResponse>> listAllCursosNombresByMesAndAnio(@PathVariable Long mes, @PathVariable Long  anio){
         List<CursoNombreResponse> curso = cursoService.listaCursosByMesAndAnio(mes, anio);
         return new ResponseEntity<>(curso, HttpStatus.OK);
     }
