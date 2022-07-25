@@ -21,9 +21,12 @@ public class ServicioCliente implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "fecha_uso")
-    @Temporal(TemporalType.DATE)
-    private Date fechaUso;
+
+    private Long dia;
+
+    private Long mes;
+
+    private Long anio;
 
 
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
