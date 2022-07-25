@@ -349,7 +349,7 @@ public class PersonaService implements UserDetailsService {
         List<Cliente> cliente = clienteRepository.findAll();
         return cliente.stream().map(clienteRequest->{
             PersonaClienteResponse pcr = new PersonaClienteResponse();
-            pcr.setId(clienteRequest.getId());
+            pcr.setId(clienteRequest.getPersona().getId());
             pcr.setCedula(clienteRequest.getPersona().getCedula());
             pcr.setNombres(clienteRequest.getPersona().getNombres());
             pcr.setApellidos(clienteRequest.getPersona().getApellidos());
