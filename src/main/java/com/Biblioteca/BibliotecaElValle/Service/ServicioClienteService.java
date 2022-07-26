@@ -1,10 +1,7 @@
 package com.Biblioteca.BibliotecaElValle.Service;
 
 
-import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.Datos;
-import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarDiscapacidadResponse;
-import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarEdadesResponse;
-import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarServiciosResponse;
+import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.*;
 import com.Biblioteca.BibliotecaElValle.Dao.ServicioCliente.ServicioClienteListResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.ServicioCliente.ServicioClienteRequest;
 import com.Biblioteca.BibliotecaElValle.Excepciones.BadRequestException;
@@ -251,6 +248,52 @@ public class ServicioClienteService {
         response.setTotal(total);
         response.setNo(datosNo);
         response.setSi(datosSi);
+
+        return response;
+    }
+
+
+
+    @Transactional
+    public FiltrarGeneroResponse filtrarByGenero(Long mes, Long anio){
+        Long totalS = servicioClienteRepository.countByMesAndAnio(mes, anio);
+        Long numCurso = cursoRepository.countDistinctByMesInicioAndAnioInicio(mes, anio);
+        Long total= totalS+numCurso;
+
+        //SERVICIOS Y CLIENTE
+        Long numMasculino = personaRepository.countByGeneroAndMesAndAnio("masculino",mes,anio);
+        Long numFemenino = personaRepository.countByGeneroAndMesAndAnio("femenino",mes,anio);
+        Long numOtros = personaRepository.countByGeneroAndMesAndAnio("otros",mes,anio);
+
+        //CUROS
+
+        Long numMasculinoCurso= cursoRepository.countDistinctByGeneroAndMesInicioAndAnioInicio("masculino",mes,anio);
+        Long numFemeninoCurso = cursoRepository.countDistinctByGeneroAndMesInicioAndAnioInicio("femenino",mes,anio);
+        Long numOtrosCurso = cursoRepository.countDistinctByGeneroAndMesInicioAndAnioInicio("otros",mes,anio);
+
+        Long numMasculinoGeneral=  numMasculino+numMasculinoCurso;
+        Long numFemeninoGeneral= numFemenino+numFemeninoCurso;
+        Long numOtrosGeneral= numOtros+numOtrosCurso;
+
+        Datos datosMas= new Datos();
+        datosMas.setNum(numMasculinoGeneral);
+        datosMas.setPct(calcularPorcentaje(total,numMasculinoGeneral));
+
+        Datos datosFem= new Datos();
+        datosFem.setNum(numFemeninoGeneral);
+        datosFem.setPct(calcularPorcentaje(total,numFemeninoGeneral));
+
+        Datos datosOtros= new Datos();
+        datosOtros.setNum(numOtrosGeneral);
+        datosOtros.setPct(calcularPorcentaje(total,numOtrosGeneral));
+
+        FiltrarGeneroResponse response = new FiltrarGeneroResponse();
+        response.setMes(mes);
+        response.setAnio(anio);
+        response.setTotal(total);
+        response.setMasculino(datosMas);
+        response.setFemenino(datosFem);
+        response.setOtros(datosOtros);
 
         return response;
     }

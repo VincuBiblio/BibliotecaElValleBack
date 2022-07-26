@@ -3,6 +3,7 @@ package com.Biblioteca.BibliotecaElValle.Controller;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoNombreResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarDiscapacidadResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarEdadesResponse;
+import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarGeneroResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarServiciosResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.ServicioCliente.ServicioClienteListResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.ServicioCliente.ServicioClienteRequest;
@@ -51,6 +52,13 @@ public class ServicioClienteController {
     @GetMapping("/filtrarByDiscapacidad/{mes}/{anio}")
     public ResponseEntity<FiltrarDiscapacidadResponse> filtrarDiscapacidadByMesAndAnio(@PathVariable Long mes, @PathVariable Long  anio){
         FiltrarDiscapacidadResponse filtro = servicioClienteService.filtrarByDiscapacidad(mes, anio);
+        return new ResponseEntity<>(filtro, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/filtrarByGenero/{mes}/{anio}")
+    public ResponseEntity<FiltrarGeneroResponse> filtrarGeneroByMesAndAnio(@PathVariable Long mes, @PathVariable Long  anio){
+        FiltrarGeneroResponse filtro = servicioClienteService.filtrarByGenero(mes, anio);
         return new ResponseEntity<>(filtro, HttpStatus.OK);
     }
 }

@@ -31,4 +31,10 @@ public interface CursoRepository extends JpaRepository<Curso,Long> {
             "from  cliente cl,  curso c, cursos_clientes cc\n" +
             "where cl.discapacidad = :discapacidad and c.mes_inicio = :mes and c.anio_inicio = :anio and cc.cliente_id = cl.id and cc.curso_id = c.id", nativeQuery = true)
     Long countDistinctByMesAndAnioAndDiscapacidad(Long mes, Long anio, Boolean discapacidad);
+
+
+    @Query(value = "select  distinct count(*)\n" +
+            "from persona p, cliente cl,  curso c, cursos_clientes cc\n" +
+            "where p.genero = :genero and c.mes_inicio = :mes and c.anio_inicio = :anio and cl.persona_id = p.id and cc.cliente_id = cl.id and cc.curso_id = c.id", nativeQuery = true)
+    Long countDistinctByGeneroAndMesInicioAndAnioInicio(String genero,Long mes, Long anio);
 }
