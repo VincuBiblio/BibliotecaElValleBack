@@ -4,6 +4,7 @@ package com.Biblioteca.BibliotecaElValle.Controller;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoNombreResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoRequest;
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoResponse;
+import com.Biblioteca.BibliotecaElValle.Excepciones.Mensaje;
 import com.Biblioteca.BibliotecaElValle.Repository.Curso.CursoClienteConsultaResponse;
 import com.Biblioteca.BibliotecaElValle.Service.CursoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,11 @@ public class CursoController {
     public ResponseEntity<?> registroCurso(@RequestBody CursoRequest request){
         return new ResponseEntity<>(cursoService.registrarCurso(request), HttpStatus.OK);
     }
-
+    @PutMapping
+    public ResponseEntity<?> update(@RequestBody CursoRequest cursoRequest){
+        cursoService.updateCurso(cursoRequest);
+        return new ResponseEntity(new Mensaje("Curso Actualizado"), HttpStatus.OK);
+    }
 
     @PostMapping("/agregar/{idCliente}/{idCurso}")
     public ResponseEntity<?> agregar(@PathVariable Long idCliente, @PathVariable Long idCurso){

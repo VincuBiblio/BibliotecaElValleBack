@@ -51,6 +51,26 @@ public class CursoService {
         }
     }
 
+    @Transactional
+    public boolean updateCurso(CursoRequest cursoRequest){
+        Optional<Curso> curso= cursoRepository.findById(cursoRequest.getId());
+        if(curso.isPresent()){
+            curso.get().setNombre(cursoRequest.getNombre());
+            curso.get().setResponsable(cursoRequest.getResponsable());
+            curso.get().setFechaFin(cursoRequest.getFechaFin());
+            curso.get().setDiaInicio((long)cursoRequest.getFechaInicio().getDate()+1);
+            curso.get().setMesInicio((long)cursoRequest.getFechaInicio().getMonth()+1);
+            curso.get().setAnioInicio((long)cursoRequest.getFechaInicio().getYear()+1900);
+            try{
+                cursoRepository.save(curso.get());
+                return true;
+            }catch (Exception ex) {
+                throw new BadRequestException("No se actualizó el curso" + ex);
+            }
+        }else {
+            throw new BadRequestException("No existe un curso con id "+cursoRequest.getId() );
+        }
+    }
 
 
     @Transactional
