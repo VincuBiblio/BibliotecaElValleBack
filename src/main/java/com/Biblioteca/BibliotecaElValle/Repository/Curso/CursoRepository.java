@@ -15,4 +15,8 @@ public interface CursoRepository extends JpaRepository<Curso,Long> {
     List<CursoClienteConsultaResponse> findDistinctByMesInicioAndAnioInicio(Long mes, Long anio);
     List<Curso> findByMesInicioAndAnioInicio(Long mes, Long anio);
 
+    @Query(value = "select distinct  count(*)\n" +
+            "from curso c, cursos_clientes cc, cliente cl\n" +
+            "where c.mes_inicio = :mes and c.anio_inicio = :anio and cc.cliente_id = cl.id and cc.curso_id = c.id ",nativeQuery = true)
+    Long countDistinctByMesInicioAndAnioInicio(Long mes, Long anio);
 }

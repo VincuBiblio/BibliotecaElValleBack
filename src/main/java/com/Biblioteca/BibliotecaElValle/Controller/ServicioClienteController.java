@@ -2,6 +2,7 @@ package com.Biblioteca.BibliotecaElValle.Controller;
 
 import com.Biblioteca.BibliotecaElValle.Dao.Cursos.CursoNombreResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarEdadesResponse;
+import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarServiciosResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.ServicioCliente.ServicioClienteListResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.ServicioCliente.ServicioClienteRequest;
 import com.Biblioteca.BibliotecaElValle.Excepciones.Mensaje;
@@ -36,6 +37,12 @@ public class ServicioClienteController {
     @GetMapping("/filtrarByEdades/{mes}/{anio}")
     public ResponseEntity<FiltrarEdadesResponse> filtrarEstadisticasByMesAndAnio(@PathVariable Long mes, @PathVariable Long  anio){
         FiltrarEdadesResponse filtro = servicioClienteService.filtrarEdades(mes, anio);
+        return new ResponseEntity<>(filtro, HttpStatus.OK);
+    }
+
+    @GetMapping("/filtrarByServicios/{mes}/{anio}")
+    public ResponseEntity<FiltrarServiciosResponse> filtrarServiciosByMesAndAnio(@PathVariable Long mes, @PathVariable Long  anio){
+        FiltrarServiciosResponse filtro = servicioClienteService.filtrarServicios(mes, anio);
         return new ResponseEntity<>(filtro, HttpStatus.OK);
     }
 }

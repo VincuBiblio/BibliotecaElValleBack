@@ -3,12 +3,14 @@ package com.Biblioteca.BibliotecaElValle.Service;
 
 import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.Datos;
 import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarEdadesResponse;
+import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarServiciosResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.ServicioCliente.ServicioClienteListResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.ServicioCliente.ServicioClienteRequest;
 import com.Biblioteca.BibliotecaElValle.Excepciones.BadRequestException;
 import com.Biblioteca.BibliotecaElValle.Models.Persona.Cliente;
 import com.Biblioteca.BibliotecaElValle.Models.Servicio.Servicio;
 import com.Biblioteca.BibliotecaElValle.Models.Servicio.ServicioCliente;
+import com.Biblioteca.BibliotecaElValle.Repository.Curso.CursoRepository;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.ClienteRepository;
 import com.Biblioteca.BibliotecaElValle.Repository.Persona.PersonaRepository;
 import com.Biblioteca.BibliotecaElValle.Repository.Servicio.ServicioRepository;
@@ -36,6 +38,9 @@ public class ServicioClienteService {
 
     @Autowired
     private PersonaRepository personaRepository;
+
+    @Autowired
+    private CursoRepository cursoRepository;
 
     @Transactional
     public boolean registrarServicioCliente (ServicioClienteRequest servicioClienteRequest){
@@ -87,7 +92,7 @@ public class ServicioClienteService {
 
     @Transactional
     public FiltrarEdadesResponse filtrarEdades(Long mes, Long anio){
-                Long total = servicioClienteRepository.countByMesAndAnio(mes, anio);
+
 
                 Long numInfantes= personaRepository.countByEdadAndEdad((long)0,(long)5);
                 Long numNinos= personaRepository.countByEdadAndEdad((long)6,(long)11);
@@ -95,6 +100,8 @@ public class ServicioClienteService {
                 Long numJovenes= personaRepository.countByEdadAndEdad((long)18,(long)25);
                 Long numAdultos= personaRepository.countByEdadAndEdad((long)26,(long)64);
                 Long numAdultosMayores= personaRepository.countByEdadAndEdad((long)65,(long)150);
+
+                Long total= numInfantes+numNinos+numAdolescentes+numJovenes+numAdultos+numAdultosMayores;
 
                 Datos datosInfantes = new Datos();
                 datosInfantes.setNum(numInfantes);
@@ -142,5 +149,55 @@ public class ServicioClienteService {
         Double pct= (double)(cantidad*100)/total;
         return Math.round(pct*100)/100.0;
 
+    }
+
+
+   @Transactional
+    public FiltrarServiciosResponse filtrarServicios(Long mes, Long anio){
+
+
+
+        Long numRepos = servicioClienteRepository.countByMesAndAnioAndNombreLikeIgnoreCase(mes, anio, "repositorio");
+        Long numBiblioteca = servicioClienteRepository.countByMesAndAnioAndNombreLikeIgnoreCase(mes, anio, "biblioteca");
+        Long numInternet = servicioClienteRepository.countByMesAndAnioAndNombreLikeIgnoreCase(mes, anio, "internet");
+        Long numImpre = servicioClienteRepository.countByMesAndAnioAndNombreLikeIgnoreCase(mes, anio, "impresora");
+        Long numCurso = cursoRepository.countDistinctByMesInicioAndAnioInicio(mes, anio);
+
+       Long total = numRepos+numBiblioteca+numInternet+numImpre+numCurso;
+
+
+
+        Datos datosRepos= new Datos();
+        datosRepos.setNum(numRepos);
+        datosRepos.setPct(calcularPorcentaje(total,numRepos));
+
+        Datos datosBibliot = new Datos();
+        datosBibliot.setNum(numBiblioteca);
+        datosBibliot.setPct(calcularPorcentaje(total,numBiblioteca));
+
+        Datos datosInternet = new Datos();
+        datosInternet.setNum(numInternet);
+        datosInternet.setPct(calcularPorcentaje(total,numInternet));
+
+        Datos datosImpre = new Datos();
+        datosImpre.setNum(numImpre);
+        datosImpre.setPct(calcularPorcentaje(total,numImpre));
+
+        Datos datosCurso = new Datos();
+        datosCurso.setNum(numCurso);
+        datosCurso.setPct(calcularPorcentaje(total,numCurso));
+
+
+        FiltrarServiciosResponse response = new FiltrarServiciosResponse();
+        response.setMes(mes);
+        response.setAnio(anio);
+        response.setTotal(total);
+        response.setRepositorio(datosRepos);
+        response.setBiblioteca(datosBibliot);
+        response.setInternet(datosInternet);
+        response.setImprecopias(datosImpre);
+        response.setTallactv(datosCurso);
+
+        return response;
     }
 }
