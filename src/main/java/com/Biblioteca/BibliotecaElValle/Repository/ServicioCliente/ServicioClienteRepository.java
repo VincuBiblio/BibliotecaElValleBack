@@ -21,4 +21,9 @@ public interface ServicioClienteRepository extends JpaRepository<ServicioCliente
             "from servicio s, cliente cl, servicio_cliente sc \n" +
             "where sc.mes  = :mes and sc.anio  = :anio and s.nombre = :servicio and sc.id_servicio = s.id and sc.id_cliente = cl.id",nativeQuery = true)
     Long countByMesAndAnioAndNombreLikeIgnoreCase(Long mes, Long anio, String servicio);
+
+    @Query(value = "select count(*) \n" +
+            "from servicio s, cliente cl, servicio_cliente sc\n" +
+            "where cl.discapacidad = :discapacidad and sc.mes  = :mes and sc.anio  = :anio  and sc.id_servicio = s.id and sc.id_cliente = cl.id ",nativeQuery = true)
+    Long countByMesAndAnioAndDiscapacidad(Long mes, Long anio, Boolean discapacidad);
 }

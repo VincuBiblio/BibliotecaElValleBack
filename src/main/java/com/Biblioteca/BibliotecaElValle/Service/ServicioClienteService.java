@@ -2,6 +2,7 @@ package com.Biblioteca.BibliotecaElValle.Service;
 
 
 import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.Datos;
+import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarDiscapacidadResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarEdadesResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.Estadisticas.FiltrarServiciosResponse;
 import com.Biblioteca.BibliotecaElValle.Dao.ServicioCliente.ServicioClienteListResponse;
@@ -94,39 +95,57 @@ public class ServicioClienteService {
     public FiltrarEdadesResponse filtrarEdades(Long mes, Long anio){
 
 
-                Long numInfantes= personaRepository.countByEdadAndEdad((long)0,(long)5);
-                Long numNinos= personaRepository.countByEdadAndEdad((long)6,(long)11);
-                Long numAdolescentes= personaRepository.countByEdadAndEdad((long)12,(long)17);
-                Long numJovenes= personaRepository.countByEdadAndEdad((long)18,(long)25);
-                Long numAdultos= personaRepository.countByEdadAndEdad((long)26,(long)64);
-                Long numAdultosMayores= personaRepository.countByEdadAndEdad((long)65,(long)150);
 
-                Long total= numInfantes+numNinos+numAdolescentes+numJovenes+numAdultos+numAdultosMayores;
+                Long numInfantes= personaRepository.countByEdadAndEdadAndMesAndAnio((long)0,(long)5,mes, anio);
+                Long numNinos= personaRepository.countByEdadAndEdadAndMesAndAnio((long)6,(long)11,mes, anio);
+                Long numAdolescentes= personaRepository.countByEdadAndEdadAndMesAndAnio((long)12,(long)17,mes, anio);
+                Long numJovenes= personaRepository.countByEdadAndEdadAndMesAndAnio((long)18,(long)25,mes, anio);
+                Long numAdultos= personaRepository.countByEdadAndEdadAndMesAndAnio((long)26,(long)64,mes, anio);
+                Long numAdultosMayores= personaRepository.countByEdadAndEdadAndMesAndAnio((long)65,(long)150,mes, anio);
+
+
+                //DE ACUERDO A LOS CURSOS
+                Long numInfantesCurso= cursoRepository.countDistinctByEdadAndEdadAndMesInicioAndAnioInicio((long)0,(long)5,mes, anio);
+                Long numNinosCurso= cursoRepository.countDistinctByEdadAndEdadAndMesInicioAndAnioInicio((long)6,(long)11,mes, anio);
+                Long numAdolescentesCurso= cursoRepository.countDistinctByEdadAndEdadAndMesInicioAndAnioInicio((long)12,(long)17,mes, anio);
+                Long numJovenesCurso= cursoRepository.countDistinctByEdadAndEdadAndMesInicioAndAnioInicio((long)18,(long)25,mes, anio);
+                Long numAdultosCurso= cursoRepository.countDistinctByEdadAndEdadAndMesInicioAndAnioInicio((long)26,(long)64,mes, anio);
+                Long numAdultosMayoresCurso= cursoRepository.countDistinctByEdadAndEdadAndMesInicioAndAnioInicio((long)64,(long)150,mes, anio);
+
+
+                Long numInfantesGeneral= numInfantes+numInfantesCurso;
+                Long numNinosGeneral= numNinos+numNinosCurso;
+                Long numAdolescentesGeneral= numAdolescentes+numAdolescentesCurso;
+                Long numJovenesGeneral= numJovenes+numJovenesCurso;
+                Long numAdultosGeneral= numAdultos+numAdultosCurso;
+                Long numAdultosMayoresGeneral= numAdultosMayores+numAdultosMayoresCurso;
+
+                Long total= numInfantesGeneral+numNinosGeneral+numAdolescentesGeneral+numJovenesGeneral+numAdultosGeneral+numAdultosMayoresGeneral;
 
                 Datos datosInfantes = new Datos();
-                datosInfantes.setNum(numInfantes);
-                datosInfantes.setPct(calcularPorcentaje(total, numInfantes));
+                datosInfantes.setNum(numInfantesGeneral);
+                datosInfantes.setPct(calcularPorcentaje(total, numInfantesGeneral));
 
                 Datos datosNinos = new Datos();
-                datosNinos.setNum(numNinos);
-                datosNinos.setPct(calcularPorcentaje(total,numNinos));
+                datosNinos.setNum(numNinosGeneral);
+                datosNinos.setPct(calcularPorcentaje(total,numNinosGeneral));
 
 
                 Datos datosAdolescentes = new Datos();
-                datosAdolescentes.setNum(numAdolescentes);
-                datosAdolescentes.setPct(calcularPorcentaje(total,numAdolescentes));
+                datosAdolescentes.setNum(numAdolescentesGeneral);
+                datosAdolescentes.setPct(calcularPorcentaje(total,numAdolescentesGeneral));
 
                 Datos datosJovenes = new Datos();
-                datosJovenes.setNum(numJovenes);
-                datosJovenes.setPct(calcularPorcentaje(total,numJovenes));
+                datosJovenes.setNum(numJovenesGeneral);
+                datosJovenes.setPct(calcularPorcentaje(total,numJovenesGeneral));
 
                 Datos datosAdultos = new Datos();
-                datosAdultos.setNum(numAdultos);
-                datosAdultos.setPct(calcularPorcentaje(total,numAdultos));
+                datosAdultos.setNum(numAdultosGeneral);
+                datosAdultos.setPct(calcularPorcentaje(total,numAdultosGeneral));
 
                 Datos datosAdultosMayores = new Datos();
-                datosAdultosMayores.setNum(numAdultosMayores);
-                datosAdultosMayores.setPct(calcularPorcentaje(total,numAdultosMayores));
+                datosAdultosMayores.setNum(numAdultosMayoresGeneral);
+                datosAdultosMayores.setPct(calcularPorcentaje(total,numAdultosMayoresGeneral));
 
 
 
@@ -201,4 +220,41 @@ public class ServicioClienteService {
 
         return response;
     }
+
+
+    @Transactional
+    public FiltrarDiscapacidadResponse filtrarByDiscapacidad(Long mes, Long anio){
+        Long totalS = servicioClienteRepository.countByMesAndAnio(mes, anio);
+        Long numCurso = cursoRepository.countDistinctByMesInicioAndAnioInicio(mes, anio);
+
+        Long total = totalS+numCurso;
+
+        Long numDiscacidadSi= servicioClienteRepository.countByMesAndAnioAndDiscapacidad(mes, anio, true);
+        Long numDiscacidadNo= servicioClienteRepository.countByMesAndAnioAndDiscapacidad(mes, anio, false);
+        Long numDiscacidadSiCurso = cursoRepository.countDistinctByMesAndAnioAndDiscapacidad(mes, anio, true);
+        Long numDiscacidadNoCurso= cursoRepository.countDistinctByMesAndAnioAndDiscapacidad(mes, anio, false);
+
+        Long numDiscacidadSiGeneral= numDiscacidadSi+numDiscacidadSiCurso;
+        Long numDiscacidadNoGeneral= numDiscacidadNo+numDiscacidadNoCurso;
+
+        Datos datosSi = new Datos();
+        datosSi.setNum(numDiscacidadSiGeneral);
+        datosSi.setPct(calcularPorcentaje(total,numDiscacidadSiGeneral));
+
+        Datos datosNo= new Datos();
+        datosNo.setNum(numDiscacidadNoGeneral);
+        datosNo.setPct(calcularPorcentaje(total,numDiscacidadNoGeneral));
+
+        FiltrarDiscapacidadResponse response = new FiltrarDiscapacidadResponse();
+        response.setMes(mes);
+        response.setAnio(anio);
+        response.setTotal(total);
+        response.setNo(datosNo);
+        response.setSi(datosSi);
+
+        return response;
+    }
+
+
+
 }

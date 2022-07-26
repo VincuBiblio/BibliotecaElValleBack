@@ -16,8 +16,8 @@ public interface PersonaRepository extends JpaRepository<Persona,Long> {
 
     @Query(value = "select  count(*)\n" +
             "from persona p, cliente cl, servicio s, servicio_cliente sc \n" +
-            "where p.edad between  :edad and :edad2 and cl.persona_id = p.id and sc.id_servicio = s.id and sc.id_cliente = cl.id",nativeQuery = true)
-    Long countByEdadAndEdad(Long edad, Long edad2);
+            "where p.edad between  :edad and :edad2 and sc.mes = :mes and sc.anio = :anio and cl.persona_id = p.id and sc.id_servicio = s.id and sc.id_cliente = cl.id",nativeQuery = true)
+    Long countByEdadAndEdadAndMesAndAnio(Long edad, Long edad2, Long mes, Long anio);
 
 
 }
