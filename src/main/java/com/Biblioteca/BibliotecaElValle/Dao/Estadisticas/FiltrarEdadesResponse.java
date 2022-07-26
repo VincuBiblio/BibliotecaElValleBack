@@ -1,7 +1,10 @@
 package com.Biblioteca.BibliotecaElValle.Dao.Estadisticas;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
+@Data
 public class FiltrarEdadesResponse implements Serializable {
 
     private Long mes;
@@ -26,9 +29,4 @@ public class FiltrarEdadesResponse implements Serializable {
 }
 
 
- class Datos{
 
-    private Long num;
-
-    private Long pct;
-}
