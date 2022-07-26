@@ -111,6 +111,7 @@ public class ServicioClienteService {
                 datosNinos.setNum(numNinos);
                 datosNinos.setPct(calcularPorcentaje(total,numNinos));
 
+
                 Datos datosAdolescentes = new Datos();
                 datosAdolescentes.setNum(numAdolescentes);
                 datosAdolescentes.setPct(calcularPorcentaje(total,numAdolescentes));
