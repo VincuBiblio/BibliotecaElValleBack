@@ -10,6 +10,8 @@ public class PersonaClienteResponse implements Serializable {
 
     private Long id;
 
+    private Long idCliente;
+
     private String cedula;
 
     private String apellidos;
@@ -88,8 +90,9 @@ public class PersonaClienteResponse implements Serializable {
     }
 
 
-    public PersonaClienteResponse(Long id, String cedula, String apellidos, String nombres, Date fechaNacimiento, Long edad, String genero, String telefono, String email, String estadoCivil, Boolean discapacidad, Long idBarrio, String barrio, Long idParroquia, String parroquia, Long idCanton, String canton, Long idProvincia, String provincia) {
+    public PersonaClienteResponse(Long id, Long idCliente, String cedula, String apellidos, String nombres, Date fechaNacimiento, Long edad, String genero, String telefono, String email, String estadoCivil, Boolean discapacidad, Long idBarrio, String barrio, Long idParroquia, String parroquia, Long idCanton, String canton, Long idProvincia, String provincia) {
         this.id = id;
+        this.idCliente = idCliente;
         this.cedula = cedula;
         this.apellidos = apellidos;
         this.nombres = nombres;
