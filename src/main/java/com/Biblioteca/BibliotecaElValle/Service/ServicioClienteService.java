@@ -82,7 +82,7 @@ public class ServicioClienteService {
                 return response;
             }).collect(Collectors.toList());
         }else{
-            throw new BadRequestException("No existe servicios usados en el mes seleccionado");
+            return null;
         }
 
     }
